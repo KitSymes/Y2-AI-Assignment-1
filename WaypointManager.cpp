@@ -26,7 +26,7 @@ HRESULT WaypointManager::createWaypoints(ID3D11Device* pd3dDevice)
 
 	HRESULT hr = S_OK;
 	m_waypoints.clear();
-	string filename = "Resources\\waypoints.txt"; 
+	string filename = "Resources\\waypoints.txt";
 	ifstream fin(filename.c_str());
 	if (!fin.is_open())
 	{
@@ -34,7 +34,7 @@ HRESULT WaypointManager::createWaypoints(ID3D11Device* pd3dDevice)
 		return 1;
 	}
 
-	
+
 	string str;
 	while (getline(fin, str)) {
 		// Output the text from the file
@@ -52,7 +52,7 @@ HRESULT WaypointManager::createWaypoints(ID3D11Device* pd3dDevice)
 	int checkpointID = 0;
 	for (unsigned int i = 0; i < wpVec.size(); i++) {
 		Waypoint* wp = new Waypoint();
-			
+
 		hr = wp->init(pd3dDevice, !wpVec[i].quad, checkpointID++);
 
 		wp->setPosition(Vector2D(wpVec[i].x, wpVec[i].y));
@@ -74,12 +74,12 @@ HRESULT WaypointManager::createWaypoints(ID3D11Device* pd3dDevice)
 		OutputDebugStringA("Something has gone wrong with the quadpoints...");
 	}
 
-	for (unsigned int i=0; i< m_quadpoints.size(); i+= 4)
+	for (unsigned int i = 0; i < m_quadpoints.size(); i += 4)
 	{
-		BoundingBox bb = CollisionHelper::createBoundingBoxFromPoints(m_quadpoints[i]->getPosition(), 
-			m_quadpoints[i+1]->getPosition(), 
-			m_quadpoints[i+2]->getPosition(), 
-			m_quadpoints[i+3]->getPosition());
+		BoundingBox bb = CollisionHelper::createBoundingBoxFromPoints(m_quadpoints[i]->getPosition(),
+			m_quadpoints[i + 1]->getPosition(),
+			m_quadpoints[i + 2]->getPosition(),
+			m_quadpoints[i + 3]->getPosition());
 
 		m_boundingBoxes.push_back(bb);
 	}
@@ -97,16 +97,15 @@ void WaypointManager::destroyWaypoints()
 
 	m_waypoints.clear();
 
-	
+
 	for (Waypoint* wp : m_quadpoints)
 	{
 		delete wp;
 	}
 
 	m_quadpoints.clear();
-	
-}
 
+}
 
 Waypoint* WaypointManager::getWaypoint(const unsigned int index)
 {
@@ -167,7 +166,7 @@ vecWaypoints WaypointManager::getNeighbouringWaypoints(Waypoint* waypoint)
 bool WaypointManager::doWaypointsCrossBuilding(Waypoint* wp1, Waypoint* wp2)
 {
 	if (wp1 == wp2)
-		return false; 
+		return false;
 
 	bool collision = false;
 	for (const BoundingBox& bb : m_boundingBoxes)

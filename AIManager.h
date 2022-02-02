@@ -34,4 +34,3 @@ private:
 	bool m_debug3 = false;
 
 };
-
