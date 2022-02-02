@@ -29,5 +29,9 @@ private:
 	Vehicle*				m_pCar = nullptr;
 	WaypointManager			m_waypointManager;
 
+	bool m_debug1 = false;
+	bool m_debug2 = false;
+	bool m_debug3 = false;
+
 };
 

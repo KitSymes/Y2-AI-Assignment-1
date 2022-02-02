@@ -64,14 +64,16 @@ void AIManager::update(const float fDeltaTime)
 {
     for (unsigned int i = 0; i < m_waypointManager.getWaypointCount(); i++) {
         m_waypointManager.getWaypoint(i)->update(fDeltaTime);
-       // AddItemToDrawList(m_waypointManager.getWaypoint(i)); // if you uncomment this, it will display the waypoints
+        if (m_debug1)
+        AddItemToDrawList(m_waypointManager.getWaypoint(i)); // if you uncomment this, it will display the waypoints
     }
 
     for (int i = 0; i < m_waypointManager.getQuadpointCount(); i++)
     {
         Waypoint* qp = m_waypointManager.getQuadpoint(i);
         qp->update(fDeltaTime);
-        //AddItemToDrawList(qp); // if you uncomment this, it will display the quad waypoints
+        if (m_debug2)
+        AddItemToDrawList(qp); // if you uncomment this, it will display the quad waypoints
     }
 
     // update and display the pickups
@@ -81,17 +83,18 @@ void AIManager::update(const float fDeltaTime)
     }
 
 	// draw the waypoints nearest to the car
-	/*
-    Waypoint* wp = m_waypointManager.getNearestWaypoint(m_pCar->getPosition());
-	if (wp != nullptr)
-	{
-		vecWaypoints vwps = m_waypointManager.getNeighbouringWaypoints(wp);
-		for (Waypoint* wp : vwps)
-		{
-			AddItemToDrawList(wp);
-		}
-	}
-    */
+    if (m_debug3)
+    {
+        Waypoint* wp = m_waypointManager.getNearestWaypoint(m_pCar->getPosition());
+        if (wp != nullptr)
+        {
+            vecWaypoints vwps = m_waypointManager.getNeighbouringWaypoints(wp);
+            for (Waypoint* wp : vwps)
+            {
+                AddItemToDrawList(wp);
+            }
+        }
+    }
 
     // update and draw the car (and check for pickup collisions)
 	if (m_pCar != nullptr)
@@ -132,6 +135,11 @@ void AIManager::keyDown(WPARAM param)
 	const WPARAM key_a = 65;
 	const WPARAM key_s = 83;
     const WPARAM key_t = 84;
+    const WPARAM key_space = 32;
+    const WPARAM key_1 = 49;
+    const WPARAM key_2 = 50;
+    const WPARAM key_3 = 51;
+    const WPARAM key_4 = 52;
 
     switch (param)
     {
@@ -163,7 +171,34 @@ void AIManager::keyDown(WPARAM param)
 		{
             break;
         }
-        // etc
+        case key_space:
+        {
+            Waypoint* wp = m_waypointManager.getNearestWaypoint(Vector2D(0, 0));
+            if (wp == nullptr)
+                return;
+
+            m_pCar->setPositionTo(wp->getPosition());
+            break;
+        }
+        case key_1:
+        {
+            m_debug1 = !m_debug1;
+            break;
+        }
+        case key_2:
+        {
+            m_debug2 = !m_debug2;
+            break;
+        }
+        case key_3:
+        {
+            m_debug3 = !m_debug3;
+            break;
+        }
+        case key_4:
+        {
+            break;
+        }
         default:
             break;
     }
@@ -245,7 +280,7 @@ bool AIManager::checkForCollisions()
     // does the car bounding sphere collide with the pickup bounding sphere?
     if (boundingSphereCar.Intersects(boundingSpherePU))
     {
-        OutputDebugStringA("A collision has occurred!\n");
+        OutputDebugStringA("Pickup collision!\n");
         m_pickups[0]->hasCollided();
         setRandomPickupPosition(m_pickups[0]);
 
