@@ -25,7 +25,6 @@ HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 
 	m_lastPosition = Vector2D(0, 0);
 
-
 	return hr;
 }
 
@@ -67,7 +66,7 @@ void Vehicle::setCurrentSpeed(const float speed)
 {
 	m_currentSpeed = m_maxSpeed * speed;
 	m_currentSpeed = max(0, m_currentSpeed);
-	m_currentSpeed = min(1, m_currentSpeed);
+	m_currentSpeed = min(m_maxSpeed, m_currentSpeed);
 }
 
 // set a position to move to
