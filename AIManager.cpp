@@ -9,6 +9,9 @@
 AIManager::AIManager()
 {
 	m_pCar = nullptr;
+	m_blueCar = nullptr;
+
+	srand(time(NULL));
 }
 
 AIManager::~AIManager()
@@ -28,6 +31,8 @@ void AIManager::release()
 
 	delete m_pCar;
 	m_pCar = nullptr;
+	delete m_blueCar;
+	m_blueCar = nullptr;
 }
 
 HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
@@ -42,9 +47,16 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
 	if (FAILED(hr))
 		return hr;
 
+	m_blueCar = new Vehicle();
+	hr = m_blueCar->initMesh(pd3dDevice, carColour::blueCar);
+	m_blueCar->setVehiclePosition(Vector2D(xPos, yPos));
+	if (FAILED(hr))
+		return hr;
+
 	// setup the waypoints
 	m_waypointManager.createWaypoints(pd3dDevice);
 	m_pCar->setWaypointManager(&m_waypointManager);
+	m_blueCar->setWaypointManager(&m_waypointManager);
 
 	// create a passenger pickup item
 	PickupItem* pPickupPassenger = new PickupItem();
@@ -102,6 +114,20 @@ void AIManager::update(const float fDeltaTime)
 		checkForCollisions();
 		AddItemToDrawList(m_pCar);
 	}
+
+	if (m_blueCar != nullptr)
+	{
+		if (m_blueCarRandom && m_blueCar->hasStopped())
+		{
+			Waypoint* wp = m_waypointManager.getRandomWaypoint();
+			if (wp == nullptr)
+				return;
+
+			m_blueCar->seek(wp->getPosition());
+		}
+		m_blueCar->update(fDeltaTime);
+		AddItemToDrawList(m_blueCar);
+	}
 }
 
 void AIManager::mouseUp(int x, int y)
@@ -112,7 +138,7 @@ void AIManager::mouseUp(int x, int y)
 		return;
 
 	// steering mode
-	m_pCar->setPositionTo(wp->getPosition());
+	m_pCar->arrive(wp->getPosition());
 }
 
 void AIManager::keyUp(WPARAM param)
@@ -164,6 +190,13 @@ void AIManager::keyDown(WPARAM param)
 	}
 	case key_s:
 	{
+		// Blue Car Random
+		Waypoint* wp = m_waypointManager.getRandomWaypoint();
+		if (wp == nullptr)
+			return;
+
+		m_blueCar->seek(wp->getPosition());
+		m_blueCarRandom = true;
 		break;
 	}
 	case key_t:
@@ -176,7 +209,7 @@ void AIManager::keyDown(WPARAM param)
 		if (wp == nullptr)
 			return;
 
-		m_pCar->setPositionTo(wp->getPosition());
+		m_pCar->seek(wp->getPosition());
 		break;
 	}
 	case key_1:

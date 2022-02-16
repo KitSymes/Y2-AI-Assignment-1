@@ -32,13 +32,39 @@ void Vehicle::update(const float deltaTime)
 {
 	// consider replacing with force based acceleration / velocity calculations
 	Vector2D vecTo = m_positionTo - m_currentPosition;
+	float length = (float)vecTo.Length();
+
+	if (m_arrive && !hasStopped())
+	{
+		Vector2D vecStart = m_startPosition - m_currentPosition;
+		float distStart = vecStart.Length();
+		if (length <= 100.0f) // TODO arriving
+		{
+			/*#include <iostream>
+			#include <sstream>
+			std::ostringstream ss;
+			ss << (length / 100.0f) * (length / 100.0f) << " " << m_currentSpeed << std::endl;
+			std::string s(ss.str());
+			OutputDebugStringA(s.c_str());*/
+			setCurrentSpeed(max(min((length / 100.0f) * (length / 100.0f), m_currentSpeed / m_maxSpeed), 0.1f));
+		}
+		else if (distStart <= 100.0f) // Leaving
+		{
+			setCurrentSpeed(max((distStart / 100.0f) * (distStart / 100.0f), 0.1f));
+		}
+		else
+		{
+			setCurrentSpeed(1.0f);
+		}
+	}
+
 	float velocity = deltaTime * m_currentSpeed;
 
-	float length = (float)vecTo.Length();
+
 	// if the distance to the end point is less than the car would move, then only move that distance. 
 	if (length > 0) {
 		vecTo.Normalize();
-		if(length > velocity)
+		if (length > velocity)
 			vecTo *= velocity;
 		else
 			vecTo *= length;
@@ -70,11 +96,31 @@ void Vehicle::setCurrentSpeed(const float speed)
 }
 
 // set a position to move to
-void Vehicle::setPositionTo(Vector2D position)
+void Vehicle::seek(Vector2D position)
 {
+	m_seek = true;
+	m_arrive = false;
+	m_wander = false;
+	m_persuit = false;
+	m_flee = false;
+
 	m_startPosition = m_currentPosition;
-	
 	m_positionTo = position;
+}
+
+void Vehicle::arrive(Vector2D position)
+{
+	m_seek = false;
+	m_arrive = true;
+	m_wander = false;
+	m_persuit = false;
+	m_flee = false;
+
+	m_startPosition = m_currentPosition;
+	m_positionTo = position;
+
+	m_arriveStart = true;
+	m_arriveEnd = false;
 }
 
 // set the current position
@@ -91,4 +137,7 @@ void Vehicle::setWaypointManager(WaypointManager* wpm)
 	m_waypointManager = wpm;
 }
 
-
+bool Vehicle::hasStopped()
+{
+	return m_currentPosition == m_positionTo;
+}

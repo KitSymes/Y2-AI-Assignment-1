@@ -38,6 +38,7 @@ public:
 
 	vecWaypoints getNeighbouringWaypoints(Waypoint* waypoint);
 	Waypoint* getNearestWaypoint(Vector2D position);
+	Waypoint* getRandomWaypoint();
 
 protected: // methods
 	bool	doWaypointsCrossBuilding(Waypoint* wp1, Waypoint* wp2);

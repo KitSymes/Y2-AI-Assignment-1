@@ -5,7 +5,6 @@
 #include "Vector2D.h"
 #include "Collidable.h"
 
-
 enum class carColour
 {
 	redCar,
@@ -20,15 +19,15 @@ public:
 
 	void setMaxSpeed(const float maxSpeed) { m_maxSpeed = maxSpeed; }
 	void setCurrentSpeed(const float speed); // a ratio: a value between 0 and 1 (1 being max speed)
-	void setPositionTo(Vector2D positionTo); // a position to move to
+	void seek(Vector2D positionTo); // a position to move to
+	void arrive(Vector2D position);
 	void setVehiclePosition(Vector2D position); // the current position - this resets positionTo
 	void setWaypointManager(WaypointManager* wpm);
 	void hasCollided() {}
 
-
+	bool hasStopped();
 
 protected: // protected methods
-
 
 protected: // preotected properties
 	float m_maxSpeed;
@@ -39,6 +38,14 @@ protected: // preotected properties
 	Vector2D m_positionTo;
 	Vector2D m_lastPosition;
 	WaypointManager* m_waypointManager;
+
+	bool m_seek = false;
+	bool m_arrive = false;
+	bool m_arriveStart = false;
+	bool m_arriveEnd = false;
+	bool m_wander = false;
+	bool m_persuit = false;
+	bool m_flee = false;
 
 };
 
