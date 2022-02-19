@@ -110,6 +110,8 @@ void AIManager::update(const float fDeltaTime)
 	// update and draw the car (and check for pickup collisions)
 	if (m_pCar != nullptr)
 	{
+		if (m_redCarPursuit)
+			m_pCar->seek(m_blueCar->getPosition());
 		m_pCar->update(fDeltaTime);
 		checkForCollisions();
 		AddItemToDrawList(m_pCar);
@@ -158,8 +160,12 @@ void AIManager::keyDown(WPARAM param)
 {
 	// hint 65-90 are a-z
 	const WPARAM key_a = 65;
+	const WPARAM key_f = 70;
+	const WPARAM key_o = 79;
+	const WPARAM key_p = 80;
 	const WPARAM key_s = 83;
 	const WPARAM key_t = 84;
+	const WPARAM key_w = 87;
 	const WPARAM key_space = 32;
 	const WPARAM key_1 = 49;
 	const WPARAM key_2 = 50;
@@ -185,11 +191,34 @@ void AIManager::keyDown(WPARAM param)
 	}
 	case key_a:
 	{
-		OutputDebugStringA("a Down \n");
+		// Arrive
+		Waypoint* wp = m_waypointManager.getRandomWaypoint();
+		if (wp == nullptr)
+			return;
+
+		m_blueCar->arrive(wp->getPosition());
+		break;
+	}
+	case key_f:
+	{
+		// Flee
+		break;
+	}
+	case key_o:
+	{
+		// Obstacle Avoidance
+		break;
+	}
+	case key_p:
+	{
+		// Pursuit
+		m_pCar->seek(m_blueCar->getPosition());
+		m_redCarPursuit = true;
 		break;
 	}
 	case key_s:
 	{
+		// Seek
 		// Blue Car Random
 		Waypoint* wp = m_waypointManager.getRandomWaypoint();
 		if (wp == nullptr)
@@ -201,6 +230,11 @@ void AIManager::keyDown(WPARAM param)
 	}
 	case key_t:
 	{
+		break;
+	}
+	case key_w:
+	{
+		// Wander
 		break;
 	}
 	case key_space:

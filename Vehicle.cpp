@@ -46,11 +46,13 @@ void Vehicle::update(const float deltaTime)
 			ss << (length / 100.0f) * (length / 100.0f) << " " << m_currentSpeed << std::endl;
 			std::string s(ss.str());
 			OutputDebugStringA(s.c_str());*/
-			setCurrentSpeed(max(min((length / 100.0f) * (length / 100.0f), m_currentSpeed / m_maxSpeed), 0.1f));
+			//setCurrentSpeed(max(min((length / 100.0f) * (length / 100.0f), m_currentSpeed / m_maxSpeed), 0.1f));
+			setCurrentSpeed(max(min((length / 100.0f), m_currentSpeed / m_maxSpeed), 0.1f));
 		}
 		else if (distStart <= 100.0f) // Leaving
 		{
-			setCurrentSpeed(max((distStart / 100.0f) * (distStart / 100.0f), 0.1f));
+			//setCurrentSpeed(max((distStart / 100.0f) * (distStart / 100.0f), 0.1f));
+			setCurrentSpeed(max((distStart / 100.0f), 0.1f));
 		}
 		else
 		{
@@ -103,6 +105,8 @@ void Vehicle::seek(Vector2D position)
 	m_wander = false;
 	m_persuit = false;
 	m_flee = false;
+
+	setMaxSpeed(1.0f);
 
 	m_startPosition = m_currentPosition;
 	m_positionTo = position;

@@ -35,5 +35,6 @@ private:
 	bool m_debug3 = false;
 
 	bool m_blueCarRandom = false;
+	bool m_redCarPursuit = false;
 
 };
