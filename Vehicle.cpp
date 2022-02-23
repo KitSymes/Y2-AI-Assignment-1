@@ -120,7 +120,8 @@ void Vehicle::arrive(Vector2D position)
 	m_persuit = false;
 	m_flee = false;
 
-	m_startPosition = m_currentPosition;
+	if (hasStopped())
+		m_startPosition = m_currentPosition;
 	m_positionTo = position;
 
 	m_arriveStart = true;

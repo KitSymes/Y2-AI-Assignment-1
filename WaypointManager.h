@@ -17,6 +17,13 @@ class Waypoint;
 typedef vector<Waypoint*> vecWaypoints;
 typedef vector <BoundingBox> vecBoundingBox;
 
+struct Node
+{
+	Waypoint* waypoint;
+	float distanceFromStart;
+	Waypoint* previous;
+};
+
 class WaypointManager
 {
 public:
@@ -32,7 +39,6 @@ public:
 	Waypoint* getQuadpoint(const unsigned int index);
 	size_t getQuadpointCount() { return m_quadpoints.size(); }
 
-
 	//Waypoint* getWaypoint(const int x, const  int y);
 	//vecWaypoints getNeighbouringWaypoints(const int x, const  int y);
 
@@ -40,6 +46,8 @@ public:
 	Waypoint* getNearestWaypoint(Vector2D position);
 	Waypoint* getRandomWaypoint();
 
+	vecWaypoints getAStarPath(Waypoint* start, Waypoint* end);
+	int getNodeByWaypoint(vector<Node> nodes, Waypoint* waypoint);
 protected: // methods
 	bool	doWaypointsCrossBuilding(Waypoint* wp1, Waypoint* wp2);
 

@@ -107,6 +107,10 @@ void AIManager::update(const float fDeltaTime)
 		}
 	}
 
+	if (!m_testAStar.empty())
+		for (Waypoint* wp : m_testAStar)
+			AddItemToDrawList(wp);
+
 	// update and draw the car (and check for pickup collisions)
 	if (m_pCar != nullptr)
 	{
@@ -138,9 +142,13 @@ void AIManager::mouseUp(int x, int y)
 	Waypoint* wp = m_waypointManager.getNearestWaypoint(Vector2D(x, y));
 	if (wp == nullptr)
 		return;
+	Waypoint* wp2 = m_waypointManager.getNearestWaypoint(m_pCar->getPosition());
+	if (wp2 == nullptr)
+		return;
 
 	// steering mode
-	m_pCar->arrive(wp->getPosition());
+	//m_pCar->arrive(wp->getPosition());
+	m_testAStar = m_waypointManager.getAStarPath(wp2, wp);
 }
 
 void AIManager::keyUp(WPARAM param)

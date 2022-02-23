@@ -30,6 +30,7 @@ private:
 	Vehicle*				m_blueCar = nullptr;
 	WaypointManager			m_waypointManager;
 
+	vecWaypoints m_testAStar;
 	bool m_debug1 = false;
 	bool m_debug2 = false;
 	bool m_debug3 = false;
