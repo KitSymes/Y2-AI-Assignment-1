@@ -149,6 +149,89 @@ Waypoint* WaypointManager::getRandomWaypoint()
 
 vecWaypoints WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 {
+	priority_queue<Node*, vector<Node*>, CompareNodes> queue;
+	vector<Node*> waypointList;
+
+	Node* startNode = new Node();
+	startNode->waypoint = start;
+	startNode->parent = nullptr;
+	startNode->gCost = 0;
+	startNode->hCost = end->distanceToWaypoint(start);
+	queue.push(startNode);
+	waypointList.push_back(startNode);
+
+	while (!queue.empty())
+	{
+		Node* currentNode = queue.top();
+		queue.pop();
+		vecWaypoints neighbours = getNeighbouringWaypoints(currentNode->waypoint);
+		for (int i = 0; i < neighbours.size(); i++)
+		{
+			int index = getNodeByWaypoint(waypointList, neighbours[i]);
+			// If node has not been discovered
+			if (index == -1)
+			{
+				Node* nextNode = new Node();
+				nextNode->waypoint = neighbours[i];
+				nextNode->parent = currentNode;
+				nextNode->gCost = currentNode->gCost + currentNode->waypoint->distanceToWaypoint(neighbours[i]);
+				nextNode->hCost = abs(currentNode->waypoint->getPosition().x - end->getPosition().x) +
+					abs(currentNode->waypoint->getPosition().y - end->getPosition().y);// end->distanceToWaypoint(nextNode->waypoint);
+				queue.push(nextNode);
+				waypointList.push_back(nextNode);
+				if (nextNode->waypoint == end)
+					while (!queue.empty())
+						queue.pop();
+			}
+			// Node has already been discovered, update
+			else
+			{
+				Node* nextNode = waypointList[index];
+				if (currentNode->gCost + currentNode->waypoint->distanceToWaypoint(nextNode->waypoint) < nextNode->gCost)
+				{
+					nextNode->parent = currentNode;
+					nextNode->gCost = currentNode->gCost + currentNode->waypoint->distanceToWaypoint(nextNode->waypoint);
+				}
+			}
+		}
+	}
+
+	vecWaypoints path;
+
+	int destinationIndex = getNodeByWaypoint(waypointList, end);
+	// If the waypoint is inaccessable (there are some in the bottom right hand that are "in" a building), return no path
+	if (destinationIndex < 0)
+	{
+		path.clear();
+		return path;
+	}
+	Node* destination = waypointList[destinationIndex];
+
+	std::stringstream posout;
+	posout << "" << destination->gCost << endl;
+	OutputDebugStringA(posout.str().c_str());
+
+	Node* temp = destination;
+	while (temp->parent != nullptr)
+	{
+		path.push_back(temp->waypoint);
+		temp = temp->parent;
+	}
+
+	for (int i = 0; i < waypointList.size(); i++)
+		delete waypointList[i];
+	waypointList.clear();
+
+	return path;
+
+	/*
+struct Node
+{
+	Waypoint* waypoint;
+	float distanceFromStart;
+	Waypoint* previous;
+};
+
 	vecWaypoints path;
 
 	path.push_back(end);
@@ -180,18 +263,12 @@ vecWaypoints WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 			// If the waypoint has been visited, check distances
 			if (std::find(visited.begin(), visited.end(), checking) != visited.end())
 			{
-				//for (int k = 0; k < distances.size(); k++)
-					//if (checking == distances[k].waypoint)
-					//{
-						//Node* checkingNode = &(distances[k]);
 				Node* checkingNode = &(distances[getNodeByWaypoint(distances, checking)]);
 				if (current->distanceFromStart + current->waypoint->distanceToWaypoint(checking) < checkingNode->distanceFromStart)
 				{
 					checkingNode->distanceFromStart = current->distanceFromStart + current->waypoint->distanceToWaypoint(checking);
 					checkingNode->previous = current->waypoint;
 				}
-				//break;
-			//}
 			}
 			// If the waypoint has been not visited, add it to distances
 			else
@@ -222,13 +299,13 @@ vecWaypoints WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 		temp = distances[getNodeByWaypoint(distances, temp.previous)];
 	}
 
-	return path;
+	return path;*/
 }
 
-int WaypointManager::getNodeByWaypoint(vector<Node> nodes, Waypoint* waypoint)
+int WaypointManager::getNodeByWaypoint(vector<Node*> nodes, Waypoint* waypoint)
 {
 	for (int i = 0; i < nodes.size(); i++)
-		if (waypoint == nodes[i].waypoint)
+		if (waypoint == nodes[i]->waypoint)
 			return i;
 	return -1;
 }

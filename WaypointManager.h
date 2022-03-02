@@ -7,6 +7,7 @@ struct ID3D11Device;
 using namespace DirectX; // this means you don't need to put DirectX:: in front of objects like XMVECTOR and so on. 
 
 #include <vector>
+#include <queue>
 using namespace std;
 
 class Waypoint;
@@ -20,8 +21,25 @@ typedef vector <BoundingBox> vecBoundingBox;
 struct Node
 {
 	Waypoint* waypoint;
-	float distanceFromStart;
-	Waypoint* previous;
+	Node* parent;
+
+	/// <summary>
+	/// Distance from start node
+	/// </summary>
+	float gCost;
+	/// <summary>
+	/// Naive distance to end node
+	/// </summary>
+	float hCost;
+};
+
+class CompareNodes
+{
+public:
+	bool operator() (Node* node1, Node* node2)
+	{
+		return node1->hCost > node2->hCost;
+	}
 };
 
 class WaypointManager
@@ -47,7 +65,7 @@ public:
 	Waypoint* getRandomWaypoint();
 
 	vecWaypoints getAStarPath(Waypoint* start, Waypoint* end);
-	int getNodeByWaypoint(vector<Node> nodes, Waypoint* waypoint);
+	int getNodeByWaypoint(vector<Node*> nodes, Waypoint* waypoint);
 protected: // methods
 	bool	doWaypointsCrossBuilding(Waypoint* wp1, Waypoint* wp2);
 
