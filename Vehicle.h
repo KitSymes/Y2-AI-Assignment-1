@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stack>
 #include "DrawableGameObject.h"
 #include "WaypointManager.h"
 #include "Vector2D.h"
@@ -11,6 +12,11 @@ enum class carColour
 	blueCar,
 };
 
+enum class SteeringBehaviour
+{
+	SEEK, ARRIVE, WANDER, PURSUIT, FLEE, OBSTACLE_AVOIDANCE, PATHFINDING
+};
+
 class Vehicle : public DrawableGameObject, public Collidable
 {
 public:
@@ -19,19 +25,25 @@ public:
 
 	void setMaxSpeed(const float maxSpeed) { m_maxSpeed = maxSpeed; }
 	void setCurrentSpeed(const float speed); // a ratio: a value between 0 and 1 (1 being max speed)
-	void seek(Vector2D positionTo); // a position to move to
-	void arrive(Vector2D position);
 	void setVehiclePosition(Vector2D position); // the current position - this resets positionTo
 	void setWaypointManager(WaypointManager* wpm);
+
 	void hasCollided() {}
-
 	bool hasStopped();
+	bool hasFinishedPathfinding();
 
-protected: // protected methods
+	void seek(Vector2D positionTo);
+	void arrive(Vector2D position);
+	void wander();
+	void pursuit(Vector2D position);
+	void pathfind(Waypoint* target);
 
-protected: // preotected properties
+	SteeringBehaviour getState() { return m_state; };
+
+protected:
 	float m_maxSpeed;
 	float m_currentSpeed;
+	float wanderTime;
 	
 	Vector2D m_currentPosition;
 	Vector2D m_startPosition;
@@ -39,13 +51,16 @@ protected: // preotected properties
 	Vector2D m_lastPosition;
 	WaypointManager* m_waypointManager;
 
-	bool m_seek = false;
+	SteeringBehaviour m_state;
+	std::stack<Waypoint*> m_pathfindingStack;
+
+	/*bool m_seek = false;
 	bool m_arrive = false;
 	bool m_arriveStart = false;
 	bool m_arriveEnd = false;
 	bool m_wander = false;
 	bool m_persuit = false;
-	bool m_flee = false;
+	bool m_flee = false;*/
 
 };
 

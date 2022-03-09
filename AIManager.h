@@ -27,15 +27,11 @@ protected:
 private:
 	vecPickups              m_pickups;
 	Vehicle*				m_pCar = nullptr;
-	Vehicle*				m_blueCar = nullptr;
+	Vehicle*				m_redCar = nullptr;
 	WaypointManager			m_waypointManager;
 
-	vecWaypoints m_testAStar;
 	bool m_debug1 = false;
 	bool m_debug2 = false;
 	bool m_debug3 = false;
-
-	bool m_blueCarRandom = false;
-	bool m_redCarPursuit = false;
 
 };

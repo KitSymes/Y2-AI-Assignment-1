@@ -8,6 +8,7 @@ using namespace DirectX; // this means you don't need to put DirectX:: in front 
 
 #include <vector>
 #include <queue>
+#include <stack>
 using namespace std;
 
 class Waypoint;
@@ -64,7 +65,7 @@ public:
 	Waypoint* getNearestWaypoint(Vector2D position);
 	Waypoint* getRandomWaypoint();
 
-	vecWaypoints getAStarPath(Waypoint* start, Waypoint* end);
+	stack<Waypoint*> getAStarPath(Waypoint* start, Waypoint* end);
 	int getNodeByWaypoint(vector<Node*> nodes, Waypoint* waypoint);
 protected: // methods
 	bool	doWaypointsCrossBuilding(Waypoint* wp1, Waypoint* wp2);

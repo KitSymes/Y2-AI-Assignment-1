@@ -147,7 +147,7 @@ Waypoint* WaypointManager::getRandomWaypoint()
 	return getWaypoint(rand() % getWaypointCount());
 }
 
-vecWaypoints WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
+stack<Waypoint*> WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 {
 	priority_queue<Node*, vector<Node*>, CompareNodes> queue;
 	vector<Node*> waypointList;
@@ -196,25 +196,20 @@ vecWaypoints WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 		}
 	}
 
-	vecWaypoints path;
+	stack<Waypoint*> path;
 
 	int destinationIndex = getNodeByWaypoint(waypointList, end);
 	// If the waypoint is inaccessable (there are some in the bottom right hand that are "in" a building), return no path
 	if (destinationIndex < 0)
 	{
-		path.clear();
 		return path;
 	}
 	Node* destination = waypointList[destinationIndex];
 
-	std::stringstream posout;
-	posout << "" << destination->gCost << endl;
-	OutputDebugStringA(posout.str().c_str());
-
 	Node* temp = destination;
 	while (temp->parent != nullptr)
 	{
-		path.push_back(temp->waypoint);
+		path.push(temp->waypoint);
 		temp = temp->parent;
 	}
 
@@ -223,83 +218,6 @@ vecWaypoints WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 	waypointList.clear();
 
 	return path;
-
-	/*
-struct Node
-{
-	Waypoint* waypoint;
-	float distanceFromStart;
-	Waypoint* previous;
-};
-
-	vecWaypoints path;
-
-	path.push_back(end);
-	// If destination was self, return
-	if (start == end)
-		return path;
-
-	vecWaypoints visited;
-	vector<Node> distances;
-
-	Node startNode;
-	startNode.waypoint = start;
-	startNode.distanceFromStart = 0.0f;
-	startNode.previous = nullptr;
-
-	distances.push_back(startNode);
-	visited.push_back(start);
-
-	for (int i = 0; i < distances.size(); i++)
-	{
-		// List of the closest waypoints to the current waypoint
-		vecWaypoints nearest = getNeighbouringWaypoints(distances[i].waypoint);
-		for (int j = 0; j < nearest.size(); j++)
-		{
-			// The current waypoint, must set it here as modifying the vector changes the data the pointer is pointing to
-			Node* current = &(distances[i]);
-			// The waypoint we are currently checking out
-			Waypoint* checking = nearest[j];
-			// If the waypoint has been visited, check distances
-			if (std::find(visited.begin(), visited.end(), checking) != visited.end())
-			{
-				Node* checkingNode = &(distances[getNodeByWaypoint(distances, checking)]);
-				if (current->distanceFromStart + current->waypoint->distanceToWaypoint(checking) < checkingNode->distanceFromStart)
-				{
-					checkingNode->distanceFromStart = current->distanceFromStart + current->waypoint->distanceToWaypoint(checking);
-					checkingNode->previous = current->waypoint;
-				}
-			}
-			// If the waypoint has been not visited, add it to distances
-			else
-			{
-				Node node;
-				node.waypoint = checking;
-				node.distanceFromStart = current->distanceFromStart + checking->distanceToWaypoint(current->waypoint);
-				node.previous = current->waypoint;
-				distances.push_back(node);
-				visited.push_back(checking);
-			}
-
-		}
-	}
-
-	int destinationIndex = getNodeByWaypoint(distances, end);
-	// If the waypoint is inaccessable (there are some in the bottom right hand that are "in" a building), return no path
-	if (destinationIndex < 0)
-	{
-		path.clear();
-		return path;
-	}
-	Node destination = distances[destinationIndex];
-	Node temp = distances[getNodeByWaypoint(distances, destination.previous)];
-	while (temp.previous != nullptr)
-	{
-		path.push_back(temp.waypoint);
-		temp = distances[getNodeByWaypoint(distances, temp.previous)];
-	}
-
-	return path;*/
 }
 
 int WaypointManager::getNodeByWaypoint(vector<Node*> nodes, Waypoint* waypoint)

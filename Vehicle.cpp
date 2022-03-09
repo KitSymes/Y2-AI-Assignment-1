@@ -1,4 +1,5 @@
 #include "Vehicle.h"
+#include "Waypoint.h"
 
 #define NORMAL_MAX_SPEED 200
 #define TEMP_MAX_SPEED 300
@@ -30,28 +31,48 @@ HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 
 void Vehicle::update(const float deltaTime)
 {
+	switch (m_state)
+	{
+	case SteeringBehaviour::PATHFINDING:
+		if (hasStopped())
+		{
+			if (!m_pathfindingStack.empty())
+			{
+				m_positionTo = m_pathfindingStack.top()->getPosition();
+				m_pathfindingStack.pop();
+			}
+		}
+		break;
+	case SteeringBehaviour::SEEK:
+		if (hasStopped())
+		{
+			Waypoint* wp = m_waypointManager->getRandomWaypoint();
+			if (wp == nullptr)
+				return;
+
+			seek(wp->getPosition());
+		}
+		break;
+	case SteeringBehaviour::WANDER:
+		break;
+	default:
+		break;
+	}
+
 	// consider replacing with force based acceleration / velocity calculations
 	Vector2D vecTo = m_positionTo - m_currentPosition;
 	float length = (float)vecTo.Length();
 
-	if (m_arrive && !hasStopped())
+	if (m_state == SteeringBehaviour::ARRIVE && !hasStopped())
 	{
 		Vector2D vecStart = m_startPosition - m_currentPosition;
 		float distStart = vecStart.Length();
-		if (length <= 100.0f) // TODO arriving
+		if (length <= 100.0f) // Arriving
 		{
-			/*#include <iostream>
-			#include <sstream>
-			std::ostringstream ss;
-			ss << (length / 100.0f) * (length / 100.0f) << " " << m_currentSpeed << std::endl;
-			std::string s(ss.str());
-			OutputDebugStringA(s.c_str());*/
-			//setCurrentSpeed(max(min((length / 100.0f) * (length / 100.0f), m_currentSpeed / m_maxSpeed), 0.1f));
 			setCurrentSpeed(max(min((length / 100.0f), m_currentSpeed / m_maxSpeed), 0.1f));
 		}
 		else if (distStart <= 100.0f) // Leaving
 		{
-			//setCurrentSpeed(max((distStart / 100.0f) * (distStart / 100.0f), 0.1f));
 			setCurrentSpeed(max((distStart / 100.0f), 0.1f));
 		}
 		else
@@ -61,7 +82,6 @@ void Vehicle::update(const float deltaTime)
 	}
 
 	float velocity = deltaTime * m_currentSpeed;
-
 
 	// if the distance to the end point is less than the car would move, then only move that distance. 
 	if (length > 0) {
@@ -100,13 +120,19 @@ void Vehicle::setCurrentSpeed(const float speed)
 // set a position to move to
 void Vehicle::seek(Vector2D position)
 {
-	m_seek = true;
-	m_arrive = false;
-	m_wander = false;
-	m_persuit = false;
-	m_flee = false;
+	m_state = SteeringBehaviour::SEEK;
 
-	setMaxSpeed(1.0f);
+	setCurrentSpeed(1.0f);
+
+	m_startPosition = m_currentPosition;
+	m_positionTo = position;
+}
+
+void Vehicle::pursuit(Vector2D position)
+{
+	m_state = SteeringBehaviour::PURSUIT;
+
+	setCurrentSpeed(1.0f);
 
 	m_startPosition = m_currentPosition;
 	m_positionTo = position;
@@ -114,18 +140,43 @@ void Vehicle::seek(Vector2D position)
 
 void Vehicle::arrive(Vector2D position)
 {
-	m_seek = false;
-	m_arrive = true;
-	m_wander = false;
-	m_persuit = false;
-	m_flee = false;
+	m_state = SteeringBehaviour::ARRIVE;
 
 	if (hasStopped())
 		m_startPosition = m_currentPosition;
-	m_positionTo = position;
 
-	m_arriveStart = true;
-	m_arriveEnd = false;
+	m_positionTo = position;
+}
+
+void Vehicle::wander()
+{
+	SteeringBehaviour::WANDER;
+	wanderTime = 1.0f;
+
+	Waypoint* wp = m_waypointManager->getRandomWaypoint();
+	if (wp == nullptr)
+		return;
+
+	m_positionTo = wp->getPosition();
+}
+
+void Vehicle::pathfind(Waypoint* target)
+{
+	m_state = SteeringBehaviour::PATHFINDING;
+
+	setCurrentSpeed(1.0f);
+
+	Waypoint* wp = m_waypointManager->getNearestWaypoint(m_currentPosition);
+	if (wp == nullptr)
+		return;
+
+	m_pathfindingStack = m_waypointManager->getAStarPath(wp, target);
+
+	if (m_pathfindingStack.empty())
+		return;
+
+	m_positionTo = m_pathfindingStack.top()->getPosition();
+	m_pathfindingStack.pop();
 }
 
 // set the current position
@@ -145,4 +196,11 @@ void Vehicle::setWaypointManager(WaypointManager* wpm)
 bool Vehicle::hasStopped()
 {
 	return m_currentPosition == m_positionTo;
+}
+
+bool Vehicle::hasFinishedPathfinding()
+{
+	if (m_state == SteeringBehaviour::PATHFINDING)
+		return m_pathfindingStack.empty() && hasStopped();
+	return true;
 }

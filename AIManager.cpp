@@ -9,7 +9,7 @@
 AIManager::AIManager()
 {
 	m_pCar = nullptr;
-	m_blueCar = nullptr;
+	m_redCar = nullptr;
 
 	srand(time(NULL));
 }
@@ -31,8 +31,8 @@ void AIManager::release()
 
 	delete m_pCar;
 	m_pCar = nullptr;
-	delete m_blueCar;
-	m_blueCar = nullptr;
+	delete m_redCar;
+	m_redCar = nullptr;
 }
 
 HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
@@ -42,21 +42,21 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
 	float yPos = 300;
 
 	m_pCar = new Vehicle();
-	HRESULT hr = m_pCar->initMesh(pd3dDevice, carColour::redCar);
+	HRESULT hr = m_pCar->initMesh(pd3dDevice, carColour::blueCar);
 	m_pCar->setVehiclePosition(Vector2D(xPos, yPos));
 	if (FAILED(hr))
 		return hr;
 
-	m_blueCar = new Vehicle();
-	hr = m_blueCar->initMesh(pd3dDevice, carColour::blueCar);
-	m_blueCar->setVehiclePosition(Vector2D(xPos, yPos));
+	m_redCar = new Vehicle();
+	hr = m_redCar->initMesh(pd3dDevice, carColour::redCar);
+	m_redCar->setVehiclePosition(Vector2D(xPos, yPos));
 	if (FAILED(hr))
 		return hr;
 
 	// setup the waypoints
 	m_waypointManager.createWaypoints(pd3dDevice);
 	m_pCar->setWaypointManager(&m_waypointManager);
-	m_blueCar->setWaypointManager(&m_waypointManager);
+	m_redCar->setWaypointManager(&m_waypointManager);
 
 	// create a passenger pickup item
 	PickupItem* pPickupPassenger = new PickupItem();
@@ -107,32 +107,41 @@ void AIManager::update(const float fDeltaTime)
 		}
 	}
 
-	if (!m_testAStar.empty())
-		for (Waypoint* wp : m_testAStar)
-			AddItemToDrawList(wp);
-
 	// update and draw the car (and check for pickup collisions)
 	if (m_pCar != nullptr)
 	{
-		if (m_redCarPursuit)
-			m_pCar->seek(m_blueCar->getPosition());
+		switch (m_pCar->getState())
+		{
+		case SteeringBehaviour::PURSUIT:
+			m_pCar->pursuit(m_redCar->getPosition());
+			break;
+		case SteeringBehaviour::PATHFINDING:
+			if (m_pCar->hasFinishedPathfinding())
+			{
+				for (PickupItem* p : m_pickups)
+				{
+					if (p->getType() != pickuptype::Passenger)
+						return;
+					Waypoint* wp = m_waypointManager.getNearestWaypoint(p->getPosition());
+					if (wp == nullptr)
+						break;
+					m_pCar->pathfind(wp);
+					break;
+				}
+			}
+			break;
+		default:
+			break;
+		}
 		m_pCar->update(fDeltaTime);
 		checkForCollisions();
 		AddItemToDrawList(m_pCar);
 	}
 
-	if (m_blueCar != nullptr)
+	if (m_redCar != nullptr)
 	{
-		if (m_blueCarRandom && m_blueCar->hasStopped())
-		{
-			Waypoint* wp = m_waypointManager.getRandomWaypoint();
-			if (wp == nullptr)
-				return;
-
-			m_blueCar->seek(wp->getPosition());
-		}
-		m_blueCar->update(fDeltaTime);
-		AddItemToDrawList(m_blueCar);
+		m_redCar->update(fDeltaTime);
+		AddItemToDrawList(m_redCar);
 	}
 }
 
@@ -142,13 +151,9 @@ void AIManager::mouseUp(int x, int y)
 	Waypoint* wp = m_waypointManager.getNearestWaypoint(Vector2D(x, y));
 	if (wp == nullptr)
 		return;
-	Waypoint* wp2 = m_waypointManager.getNearestWaypoint(m_pCar->getPosition());
-	if (wp2 == nullptr)
-		return;
 
 	// steering mode
 	//m_pCar->arrive(wp->getPosition());
-	m_testAStar = m_waypointManager.getAStarPath(wp2, wp);
 }
 
 void AIManager::keyUp(WPARAM param)
@@ -204,7 +209,7 @@ void AIManager::keyDown(WPARAM param)
 		if (wp == nullptr)
 			return;
 
-		m_blueCar->arrive(wp->getPosition());
+		m_pCar->arrive(wp->getPosition());
 		break;
 	}
 	case key_f:
@@ -220,29 +225,38 @@ void AIManager::keyDown(WPARAM param)
 	case key_p:
 	{
 		// Pursuit
-		m_pCar->seek(m_blueCar->getPosition());
-		m_redCarPursuit = true;
+		m_pCar->pursuit(m_redCar->getPosition());
 		break;
 	}
 	case key_s:
 	{
 		// Seek
-		// Blue Car Random
 		Waypoint* wp = m_waypointManager.getRandomWaypoint();
 		if (wp == nullptr)
 			return;
 
-		m_blueCar->seek(wp->getPosition());
-		m_blueCarRandom = true;
+		m_pCar->seek(wp->getPosition());
 		break;
 	}
 	case key_t:
 	{
+		// Pathfinding
+		for (PickupItem* p : m_pickups)
+		{
+			if (p->getType() != pickuptype::Passenger)
+				return;
+				Waypoint* wp = m_waypointManager.getNearestWaypoint(p->getPosition());
+				if (wp == nullptr)
+					break;
+				m_pCar->pathfind(wp);
+				break;
+		}
 		break;
 	}
 	case key_w:
 	{
 		// Wander
+		m_redCar->wander();
 		break;
 	}
 	case key_space:
