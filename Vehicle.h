@@ -36,6 +36,7 @@ public:
 	void arrive(Vector2D position);
 	void wander();
 	void pursuit(Vector2D position);
+	void flee(Vector2D position);
 	void pathfind(Waypoint* target);
 
 	SteeringBehaviour getState() { return m_state; };
@@ -54,13 +55,7 @@ protected:
 	SteeringBehaviour m_state;
 	std::stack<Waypoint*> m_pathfindingStack;
 
-	/*bool m_seek = false;
-	bool m_arrive = false;
-	bool m_arriveStart = false;
-	bool m_arriveEnd = false;
-	bool m_wander = false;
-	bool m_persuit = false;
-	bool m_flee = false;*/
+	float m_fleeRange = 200.0f;
 
 };
 

@@ -130,6 +130,9 @@ void AIManager::update(const float fDeltaTime)
 				}
 			}
 			break;
+		case SteeringBehaviour::FLEE:
+			m_pCar->flee(m_redCar->getPosition());
+			break;
 		default:
 			break;
 		}
@@ -215,6 +218,7 @@ void AIManager::keyDown(WPARAM param)
 	case key_f:
 	{
 		// Flee
+		m_pCar->flee(m_redCar->getPosition());
 		break;
 	}
 	case key_o:

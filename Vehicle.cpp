@@ -121,27 +121,42 @@ void Vehicle::setCurrentSpeed(const float speed)
 void Vehicle::seek(Vector2D position)
 {
 	m_state = SteeringBehaviour::SEEK;
-
+	m_startPosition = m_currentPosition;
 	setCurrentSpeed(1.0f);
 
-	m_startPosition = m_currentPosition;
 	m_positionTo = position;
 }
 
 void Vehicle::pursuit(Vector2D position)
 {
 	m_state = SteeringBehaviour::PURSUIT;
-
+	m_startPosition = m_currentPosition;
 	setCurrentSpeed(1.0f);
 
-	m_startPosition = m_currentPosition;
 	m_positionTo = position;
+}
+
+void Vehicle::flee(Vector2D position)
+{
+	m_state = SteeringBehaviour::FLEE;
+	m_startPosition = m_currentPosition;
+	setCurrentSpeed(1.0f);
+
+	Vector2D towards = position - m_currentPosition;
+	float length = towards.Length();
+	towards.Normalize();
+	if (length < m_fleeRange)
+	{
+		towards *= m_fleeRange - length;
+		m_positionTo = m_currentPosition - towards;
+	}
+	else
+		m_positionTo = m_currentPosition;
 }
 
 void Vehicle::arrive(Vector2D position)
 {
 	m_state = SteeringBehaviour::ARRIVE;
-
 	if (hasStopped())
 		m_startPosition = m_currentPosition;
 
