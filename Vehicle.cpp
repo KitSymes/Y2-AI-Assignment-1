@@ -76,13 +76,23 @@ void Vehicle::update(const float deltaTime)
 		if (length < m_fleeRange)
 		{
 			towards.Normalize();
-			towards *= (m_fleeRange - length);
+			towards *= m_fleeRange - length;
 			m_positionTo = m_currentPosition - towards;
 		}
 		else
 			m_positionTo = m_currentPosition;
 		break;
 	}
+	case SteeringBehaviour::OBSTACLE_AVOIDANCE:
+		if (hasStopped())
+		{
+			Waypoint* wp = m_waypointManager->getRandomWaypoint();
+			if (wp == nullptr)
+				return;
+
+			obstacleAvoidance(wp->getPosition(), m_target);
+		}
+		break;
 	default:
 		break;
 	}
@@ -111,32 +121,6 @@ void Vehicle::update(const float deltaTime)
 
 	float velocity = deltaTime * m_currentSpeed;
 
-	if (m_state == SteeringBehaviour::OBSTACLE_AVOIDANCE)
-	{
-		/*XMVECTOR dummy;
-
-		// get the position and scale of the car and store in dx friendly xmvectors
-		XMVECTOR targetPos;
-		XMVECTOR targetScale;
-		XMMatrixDecompose(
-			&targetPos,
-			&dummy,
-			&targetScale,
-			XMLoadFloat4x4(m_carTarget->getTransform())
-		);
-
-		XMFLOAT3 scale;
-		XMStoreFloat3(&scale, carScale);
-		BoundingSphere boundingSphereCar;
-		XMStoreFloat3(&boundingSphereCar.Center, carPos);
-		boundingSphereCar.Radius = scale.x;
-
-		BoundingOrientedBox carBox;
-		if (boundingSphereCar.Intersects(boundingSpherePU))
-
-		if ()*/
-	}
-
 	// if the distance to the end point is less than the car would move, then only move that distance. 
 	if (length > 0) {
 		vecTo.Normalize();
@@ -144,6 +128,49 @@ void Vehicle::update(const float deltaTime)
 			vecTo *= velocity;
 		else
 			vecTo *= length;
+
+		if (m_state == SteeringBehaviour::OBSTACLE_AVOIDANCE)
+		{
+			XMVECTOR dummy;
+
+			XMVECTOR carPos;
+			XMVECTOR carScale;
+			XMMatrixDecompose(
+				&carScale,
+				&dummy,
+				&carPos,
+				XMLoadFloat4x4(m_target->getTransform())
+			);
+
+			XMFLOAT3 scale;
+			XMStoreFloat3(&scale, carScale);
+			BoundingSphere boundingSphereCar;
+			XMStoreFloat3(&boundingSphereCar.Center, carPos);
+			boundingSphereCar.Radius = scale.x;
+
+			BoundingOrientedBox carBox;
+			XMFLOAT3 points[4];
+			Vector2D vecToNormal = vecTo;
+			vecToNormal.Normalize();
+			Vector2D perp = vecTo.Perp();
+			perp.Normalize();
+			perp *= 5.0f;
+			points[0] = ToXMFLOAT3(m_currentPosition + vecToNormal * m_detectionDistance + perp); // Forward Right
+			//m_target->m_currentPosition = Vector2D(points[0].x, points[0].y);
+			points[1] = ToXMFLOAT3(m_currentPosition + vecToNormal * m_detectionDistance - perp); // Forward Left
+			points[2] = ToXMFLOAT3(m_currentPosition + perp); // Back Right
+			points[3] = ToXMFLOAT3(m_currentPosition - perp); // Back Left
+			BoundingOrientedBox::CreateFromPoints(carBox, 4, points, sizeof(XMFLOAT3));
+			if (boundingSphereCar.Intersects(carBox))
+			{
+				OutputDebugStringA("Intersects\n");
+				Vector2D toTarget = (m_target->m_currentPosition - m_currentPosition);
+				float length = toTarget.Length();
+				Vector2D toTargetPerpNormal = toTarget.Perp();
+				toTargetPerpNormal.Normalize();
+				vecTo -= toTargetPerpNormal * (m_detectionDistance / length);
+			}
+		}
 
 		m_currentPosition += vecTo;
 	}

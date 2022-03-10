@@ -49,7 +49,7 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
 
 	m_redCar = new Vehicle();
 	hr = m_redCar->initMesh(pd3dDevice, carColour::redCar);
-	m_redCar->setVehiclePosition(Vector2D(xPos, yPos));
+	m_redCar->setVehiclePosition(Vector2D(0, 0));
 	if (FAILED(hr))
 		return hr;
 
@@ -153,6 +153,7 @@ void AIManager::mouseUp(int x, int y)
 
 	// steering mode
 	//m_pCar->arrive(wp->getPosition());
+	m_pCar->obstacleAvoidance(wp->getPosition(), m_redCar);
 }
 
 void AIManager::keyUp(WPARAM param)
@@ -220,6 +221,11 @@ void AIManager::keyDown(WPARAM param)
 	case key_o:
 	{
 		// Obstacle Avoidance
+		Waypoint* wp = m_waypointManager.getRandomWaypoint();
+		if (wp == nullptr)
+			return;
+
+		m_pCar->obstacleAvoidance(wp->getPosition(), m_redCar);
 		break;
 	}
 	case key_p:

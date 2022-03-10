@@ -14,7 +14,7 @@ enum class carColour
 
 enum class SteeringBehaviour
 {
-	SEEK, ARRIVE, WANDER, PURSUIT, FLEE, OBSTACLE_AVOIDANCE, PATHFINDING
+	NONE, SEEK, ARRIVE, WANDER, PURSUIT, FLEE, OBSTACLE_AVOIDANCE, PATHFINDING
 };
 
 class Vehicle : public DrawableGameObject, public Collidable
@@ -61,6 +61,11 @@ protected:
 	std::stack<Waypoint*> m_pathfindingStack;
 
 	float m_fleeRange = 200.0f;
+	float m_detectionDistance = 200.0f;
 
 };
 
+inline XMFLOAT3 ToXMFLOAT3(Vector2D vector)
+{
+	return XMFLOAT3(vector.x, vector.y, 0.0f);
+}
