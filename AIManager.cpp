@@ -112,9 +112,6 @@ void AIManager::update(const float fDeltaTime)
 	{
 		switch (m_pCar->getState())
 		{
-		case SteeringBehaviour::PURSUIT:
-			m_pCar->pursuit(m_redCar->getPosition());
-			break;
 		case SteeringBehaviour::PATHFINDING:
 			if (m_pCar->hasFinishedPathfinding())
 			{
@@ -130,9 +127,6 @@ void AIManager::update(const float fDeltaTime)
 				}
 			}
 			break;
-		case SteeringBehaviour::FLEE:
-			m_pCar->flee(m_redCar->getPosition());
-			break;
 		default:
 			break;
 		}
@@ -145,6 +139,8 @@ void AIManager::update(const float fDeltaTime)
 	{
 		m_redCar->update(fDeltaTime);
 		AddItemToDrawList(m_redCar);
+		if (m_redCar->getState() == SteeringBehaviour::WANDER)
+			AddItemToDrawList(m_redCar->m_debugTargetWaypoint);
 	}
 }
 
@@ -218,7 +214,7 @@ void AIManager::keyDown(WPARAM param)
 	case key_f:
 	{
 		// Flee
-		m_pCar->flee(m_redCar->getPosition());
+		m_pCar->flee(m_redCar);
 		break;
 	}
 	case key_o:
@@ -229,7 +225,7 @@ void AIManager::keyDown(WPARAM param)
 	case key_p:
 	{
 		// Pursuit
-		m_pCar->pursuit(m_redCar->getPosition());
+		m_pCar->pursuit(m_redCar);
 		break;
 	}
 	case key_s:
@@ -260,7 +256,11 @@ void AIManager::keyDown(WPARAM param)
 	case key_w:
 	{
 		// Wander
-		m_redCar->wander();
+		Waypoint* wp = m_waypointManager.getRandomWaypoint();
+		if (wp == nullptr)
+			return;
+
+		m_redCar->wander(wp);
 		break;
 	}
 	case key_space:

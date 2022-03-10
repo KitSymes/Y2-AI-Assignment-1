@@ -54,7 +54,35 @@ void Vehicle::update(const float deltaTime)
 		}
 		break;
 	case SteeringBehaviour::WANDER:
+		if (m_wanderTime <= 0.0f || hasStopped())
+		{
+			// New Waypoint
+			Waypoint* wp = m_waypointManager->getRandomWaypoint();
+			if (wp == nullptr)
+				return;
+
+			wander(wp);
+		}
+		else
+			m_wanderTime -= deltaTime;
 		break;
+	case SteeringBehaviour::PURSUIT:
+		m_positionTo = m_target->getPosition();
+		break;
+	case SteeringBehaviour::FLEE:
+	{
+		Vector2D towards = m_target->getPosition() - m_currentPosition;
+		float length = towards.Length();
+		if (length < m_fleeRange)
+		{
+			towards.Normalize();
+			towards *= (m_fleeRange - length);
+			m_positionTo = m_currentPosition - towards;
+		}
+		else
+			m_positionTo = m_currentPosition;
+		break;
+	}
 	default:
 		break;
 	}
@@ -82,6 +110,32 @@ void Vehicle::update(const float deltaTime)
 	}
 
 	float velocity = deltaTime * m_currentSpeed;
+
+	if (m_state == SteeringBehaviour::OBSTACLE_AVOIDANCE)
+	{
+		/*XMVECTOR dummy;
+
+		// get the position and scale of the car and store in dx friendly xmvectors
+		XMVECTOR targetPos;
+		XMVECTOR targetScale;
+		XMMatrixDecompose(
+			&targetPos,
+			&dummy,
+			&targetScale,
+			XMLoadFloat4x4(m_carTarget->getTransform())
+		);
+
+		XMFLOAT3 scale;
+		XMStoreFloat3(&scale, carScale);
+		BoundingSphere boundingSphereCar;
+		XMStoreFloat3(&boundingSphereCar.Center, carPos);
+		boundingSphereCar.Radius = scale.x;
+
+		BoundingOrientedBox carBox;
+		if (boundingSphereCar.Intersects(boundingSpherePU))
+
+		if ()*/
+	}
 
 	// if the distance to the end point is less than the car would move, then only move that distance. 
 	if (length > 0) {
@@ -127,33 +181,6 @@ void Vehicle::seek(Vector2D position)
 	m_positionTo = position;
 }
 
-void Vehicle::pursuit(Vector2D position)
-{
-	m_state = SteeringBehaviour::PURSUIT;
-	m_startPosition = m_currentPosition;
-	setCurrentSpeed(1.0f);
-
-	m_positionTo = position;
-}
-
-void Vehicle::flee(Vector2D position)
-{
-	m_state = SteeringBehaviour::FLEE;
-	m_startPosition = m_currentPosition;
-	setCurrentSpeed(1.0f);
-
-	Vector2D towards = position - m_currentPosition;
-	float length = towards.Length();
-	towards.Normalize();
-	if (length < m_fleeRange)
-	{
-		towards *= m_fleeRange - length;
-		m_positionTo = m_currentPosition - towards;
-	}
-	else
-		m_positionTo = m_currentPosition;
-}
-
 void Vehicle::arrive(Vector2D position)
 {
 	m_state = SteeringBehaviour::ARRIVE;
@@ -163,16 +190,41 @@ void Vehicle::arrive(Vector2D position)
 	m_positionTo = position;
 }
 
-void Vehicle::wander()
+void Vehicle::wander(Waypoint* wp)
 {
-	SteeringBehaviour::WANDER;
-	wanderTime = 1.0f;
-
-	Waypoint* wp = m_waypointManager->getRandomWaypoint();
-	if (wp == nullptr)
-		return;
+	m_state = SteeringBehaviour::WANDER;
+	m_wanderTime = m_wanderTimeMax;
 
 	m_positionTo = wp->getPosition();
+	m_debugTargetWaypoint = wp;
+}
+
+void Vehicle::pursuit(Vehicle* target)
+{
+	m_state = SteeringBehaviour::PURSUIT;
+	m_startPosition = m_currentPosition;
+	setCurrentSpeed(1.0f);
+
+	m_target = target;
+	m_positionTo = target->getPosition();
+}
+
+void Vehicle::flee(Vehicle* target)
+{
+	m_state = SteeringBehaviour::FLEE;
+	m_startPosition = m_currentPosition;
+	setCurrentSpeed(1.0f);
+	m_target = target;
+}
+
+void Vehicle::obstacleAvoidance(Vector2D position, Vehicle* target)
+{
+	m_state = SteeringBehaviour::OBSTACLE_AVOIDANCE;
+	m_startPosition = m_currentPosition;
+	setCurrentSpeed(1.0f);
+
+	m_positionTo = position;
+	m_target = target;
 }
 
 void Vehicle::pathfind(Waypoint* target)

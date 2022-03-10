@@ -25,26 +25,31 @@ public:
 
 	void setMaxSpeed(const float maxSpeed) { m_maxSpeed = maxSpeed; }
 	void setCurrentSpeed(const float speed); // a ratio: a value between 0 and 1 (1 being max speed)
-	void setVehiclePosition(Vector2D position); // the current position - this resets positionTo
+	void setVehiclePosition(Vector2D position);
 	void setWaypointManager(WaypointManager* wpm);
 
 	void hasCollided() {}
 	bool hasStopped();
 	bool hasFinishedPathfinding();
 
-	void seek(Vector2D positionTo);
+	void seek(Vector2D position);
 	void arrive(Vector2D position);
-	void wander();
-	void pursuit(Vector2D position);
-	void flee(Vector2D position);
+	void wander(Waypoint* wp);
+	void pursuit(Vehicle* target);
+	void flee(Vehicle* target);
+	void obstacleAvoidance(Vector2D position, Vehicle* target);
 	void pathfind(Waypoint* target);
 
 	SteeringBehaviour getState() { return m_state; };
 
+	Waypoint* m_debugTargetWaypoint;
 protected:
 	float m_maxSpeed;
 	float m_currentSpeed;
-	float wanderTime;
+	float m_wanderTimeMax = 1.0f;
+	float m_wanderTime;
+
+	Vehicle* m_target;
 	
 	Vector2D m_currentPosition;
 	Vector2D m_startPosition;
