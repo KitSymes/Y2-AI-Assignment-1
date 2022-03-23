@@ -14,7 +14,7 @@ enum class carColour
 
 enum class SteeringBehaviour
 {
-	NONE, SEEK, ARRIVE, WANDER, PURSUIT, FLEE, OBSTACLE_AVOIDANCE, PATHFINDING
+	NONE, SEEK, ARRIVE, WANDER, PURSUIT, FLEE, OBSTACLE_AVOIDANCE, PATHFINDING, DECISION_MAKING
 };
 
 class Vehicle : public DrawableGameObject, public Collidable
@@ -48,6 +48,7 @@ protected:
 	float m_currentSpeed;
 	float m_wanderTimeMax = 1.0f;
 	float m_wanderTime;
+	float m_fuelPercent = 100.0f;
 
 	Vehicle* m_target;
 	

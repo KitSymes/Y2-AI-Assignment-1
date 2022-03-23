@@ -61,12 +61,27 @@ HRESULT AIManager::initialise(ID3D11Device* pd3dDevice)
 	// create a passenger pickup item
 	PickupItem* pPickupPassenger = new PickupItem();
 	hr = pPickupPassenger->initMesh(pd3dDevice, pickuptype::Passenger);
+	if (FAILED(hr))
+		return hr;
 	m_pickups.push_back(pPickupPassenger);
 
 	// NOTE!! for fuel and speedboost - you will need to create these here yourself
+	PickupItem* pPickupFuel = new PickupItem();
+	hr = pPickupFuel->initMesh(pd3dDevice, pickuptype::Fuel);
+	if (FAILED(hr))
+		return hr;
+	m_pickups.push_back(pPickupFuel);
+
+	PickupItem* pPickupSpeedboost = new PickupItem();
+	hr = pPickupSpeedboost->initMesh(pd3dDevice, pickuptype::SpeedBoost);
+	if (FAILED(hr))
+		return hr;
+	m_pickups.push_back(pPickupSpeedboost);
 
 	// (needs to be done after waypoint setup)
 	setRandomPickupPosition(pPickupPassenger);
+	setRandomPickupPosition(pPickupFuel);
+	setRandomPickupPosition(pPickupSpeedboost);
 
 	return hr;
 }

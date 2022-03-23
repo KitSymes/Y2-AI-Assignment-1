@@ -67,7 +67,7 @@ void Vehicle::update(const float deltaTime)
 			m_wanderTime -= deltaTime;
 		break;
 	case SteeringBehaviour::PURSUIT:
-		m_positionTo = m_target->getPosition();
+		m_positionTo = m_target->getPosition() + Vector2D(cos(m_target->m_radianRotation), sin(m_target->m_radianRotation)) * 0.25f * m_target->m_currentSpeed;
 		break;
 	case SteeringBehaviour::FLEE:
 	{
