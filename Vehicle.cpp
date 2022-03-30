@@ -124,10 +124,39 @@ void Vehicle::update(const float deltaTime)
 	// if the distance to the end point is less than the car would move, then only move that distance. 
 	if (length > 0) {
 		vecTo.Normalize();
+
 		if (length > velocity)
-			vecTo *= velocity;
+			velocity = velocity;
 		else
-			vecTo *= length;
+			velocity = length;
+
+		if (m_state == SteeringBehaviour::DECISION_MAKING)
+		{
+			Vector2D potential = (vecTo * velocity);
+			float distance = potential.Length();
+			if (m_speedboostDistance > 0.0f)
+			{
+				if (distance <= m_speedboostDistance)
+				{
+					m_speedboostDistance -= distance;
+					distance /= 2;
+				}
+				else
+				{
+					// Speedboost runs out partly through this move
+
+				}
+
+				if (m_speedboostDistance <= 0.0f)
+				{
+					// TODO disable speedboost
+				}
+
+			}
+			m_fuelDistance -= distance;
+		}
+
+		vecTo *= velocity;
 
 		if (m_state == SteeringBehaviour::OBSTACLE_AVOIDANCE)
 		{

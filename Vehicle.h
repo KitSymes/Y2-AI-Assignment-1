@@ -39,6 +39,7 @@ public:
 	void flee(Vehicle* target);
 	void obstacleAvoidance(Vector2D position, Vehicle* target);
 	void pathfind(Waypoint* target);
+	void decisionMaking(DrawableGameObject* passenger, DrawableGameObject* fuel, DrawableGameObject* speedboost);
 
 	SteeringBehaviour getState() { return m_state; };
 
@@ -48,7 +49,8 @@ protected:
 	float m_currentSpeed;
 	float m_wanderTimeMax = 1.0f;
 	float m_wanderTime;
-	float m_fuelPercent = 100.0f;
+	float m_fuelDistance = 2000.0f;
+	float m_speedboostDistance = 0.0f;
 
 	Vehicle* m_target;
 	
@@ -63,7 +65,6 @@ protected:
 
 	float m_fleeRange = 200.0f;
 	float m_detectionDistance = 200.0f;
-
 };
 
 inline XMFLOAT3 ToXMFLOAT3(Vector2D vector)
