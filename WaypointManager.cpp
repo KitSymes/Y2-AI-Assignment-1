@@ -149,10 +149,10 @@ Waypoint* WaypointManager::getRandomWaypoint()
 
 stack<Waypoint*> WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 {
-	priority_queue<Node*, vector<Node*>, CompareNodes> queue;
-	vector<Node*> waypointList;
+	priority_queue<AStarNode*, vector<AStarNode*>, CompareNodes> queue;
+	vector<AStarNode*> waypointList;
 
-	Node* startNode = new Node();
+	AStarNode* startNode = new AStarNode();
 	startNode->waypoint = start;
 	startNode->parent = nullptr;
 	startNode->gCost = 0;
@@ -162,7 +162,7 @@ stack<Waypoint*> WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 
 	while (!queue.empty())
 	{
-		Node* currentNode = queue.top();
+		AStarNode* currentNode = queue.top();
 		queue.pop();
 		vecWaypoints neighbours = getNeighbouringWaypoints(currentNode->waypoint);
 		for (int i = 0; i < neighbours.size(); i++)
@@ -171,7 +171,7 @@ stack<Waypoint*> WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 			// If node has not been discovered
 			if (index == -1)
 			{
-				Node* nextNode = new Node();
+				AStarNode* nextNode = new AStarNode();
 				nextNode->waypoint = neighbours[i];
 				nextNode->parent = currentNode;
 				nextNode->gCost = currentNode->gCost + currentNode->waypoint->distanceToWaypoint(neighbours[i]);
@@ -183,10 +183,10 @@ stack<Waypoint*> WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 					while (!queue.empty())
 						queue.pop();
 			}
-			// Node has already been discovered, update
+			// AStarNode has already been discovered, update
 			else
 			{
-				Node* nextNode = waypointList[index];
+				AStarNode* nextNode = waypointList[index];
 				if (currentNode->gCost + currentNode->waypoint->distanceToWaypoint(nextNode->waypoint) < nextNode->gCost)
 				{
 					nextNode->parent = currentNode;
@@ -204,9 +204,9 @@ stack<Waypoint*> WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 	{
 		return path;
 	}
-	Node* destination = waypointList[destinationIndex];
+	AStarNode* destination = waypointList[destinationIndex];
 
-	Node* temp = destination;
+	AStarNode* temp = destination;
 	while (temp->parent != nullptr)
 	{
 		path.push(temp->waypoint);
@@ -220,7 +220,7 @@ stack<Waypoint*> WaypointManager::getAStarPath(Waypoint* start, Waypoint* end)
 	return path;
 }
 
-int WaypointManager::getNodeByWaypoint(vector<Node*> nodes, Waypoint* waypoint)
+int WaypointManager::getNodeByWaypoint(vector<AStarNode*> nodes, Waypoint* waypoint)
 {
 	for (int i = 0; i < nodes.size(); i++)
 		if (waypoint == nodes[i]->waypoint)

@@ -20,6 +20,17 @@
     </ClCompile>
     <ClCompile Include="Collidable.cpp" />
     <ClCompile Include="CollisionHelper.cpp" />
+    <ClCompile Include="Selector.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="Node.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="BehaviourTree.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="GoToFuelTask.cpp" />
+    <ClCompile Include="Sequence.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIManager.h" />
@@ -53,6 +64,17 @@
       <Filter>Core %28do not edit%29</Filter>
     </ClInclude>
     <ClInclude Include="CollisionHelper.h" />
+    <ClInclude Include="Selector.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="BehaviourTree.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="GoToFuelTask.h" />
+    <ClInclude Include="Sequence.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\blue.dds">
@@ -95,6 +117,9 @@
     </Filter>
     <Filter Include="Core %28do not edit%29">
       <UniqueIdentifier>{c721d74b-61d3-4ae0-9d17-be739d070a1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Behaviour Tree">
+      <UniqueIdentifier>{d63aa0b5-7a68-413f-8f57-5ce2cc32d23d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
