@@ -132,28 +132,26 @@ void Vehicle::update(const float deltaTime)
 
 		if (m_state == SteeringBehaviour::DECISION_MAKING)
 		{
-			Vector2D potential = (vecTo * velocity);
-			float distance = potential.Length();
+			//Vector2D potential = (vecTo * velocity);
+			// The distance that will be travelled this move, used for calculating fuel cost
+			float distance = velocity;
+			// Check if currently speed boosted
 			if (m_speedboostDistance > 0.0f)
 			{
-				if (distance <= m_speedboostDistance)
-				{
-					m_speedboostDistance -= distance;
-					distance /= 2;
-				}
-				else
-				{
-					// Speedboost runs out partly through this move
+				// Speed boost may run out part way through a move, resulting in it having extra effect
+				m_speedboostDistance -= distance;
+				distance /= 2;
 
-				}
-
+				// Speed boost has now ran out
 				if (m_speedboostDistance <= 0.0f)
-				{
-					// TODO disable speedboost
-				}
+					setCurrentSpeed(0.5f);
 
 			}
 			m_fuelDistance -= distance;
+
+			// Fuel has run out, speed set to low
+			if (m_fuelDistance <= 0.0f)
+				setCurrentSpeed(0.1f);
 		}
 
 		vecTo *= velocity;
@@ -300,6 +298,11 @@ void Vehicle::pathfind(Waypoint* target)
 
 	m_positionTo = m_pathfindingStack.top()->getPosition();
 	m_pathfindingStack.pop();
+}
+
+void Vehicle::decisionMaking(DrawableGameObject* passenger, DrawableGameObject* fuel, DrawableGameObject* speedboost)
+{
+	setCurrentSpeed(0.5f);
 }
 
 // set the current position

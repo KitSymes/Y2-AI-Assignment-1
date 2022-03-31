@@ -19,10 +19,10 @@ class Waypoint;
 typedef vector<Waypoint*> vecWaypoints;
 typedef vector <BoundingBox> vecBoundingBox;
 
-struct Node
+struct AStarNode
 {
 	Waypoint* waypoint;
-	Node* parent;
+	AStarNode* parent;
 
 	/// <summary>
 	/// Distance from start node
@@ -37,7 +37,7 @@ struct Node
 class CompareNodes
 {
 public:
-	bool operator() (Node* node1, Node* node2)
+	bool operator() (AStarNode* node1, AStarNode* node2)
 	{
 		return node1->hCost > node2->hCost;
 	}
@@ -66,7 +66,7 @@ public:
 	Waypoint* getRandomWaypoint();
 
 	stack<Waypoint*> getAStarPath(Waypoint* start, Waypoint* end);
-	int getNodeByWaypoint(vector<Node*> nodes, Waypoint* waypoint);
+	int getNodeByWaypoint(vector<AStarNode*> nodes, Waypoint* waypoint);
 protected: // methods
 	bool	doWaypointsCrossBuilding(Waypoint* wp1, Waypoint* wp2);
 
