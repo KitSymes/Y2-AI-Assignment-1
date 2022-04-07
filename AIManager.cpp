@@ -188,6 +188,7 @@ void AIManager::keyDown(WPARAM param)
 {
 	// hint 65-90 are a-z
 	const WPARAM key_a = 65;
+	const WPARAM key_d = 68;
 	const WPARAM key_f = 70;
 	const WPARAM key_o = 79;
 	const WPARAM key_p = 80;
@@ -225,6 +226,11 @@ void AIManager::keyDown(WPARAM param)
 			return;
 
 		m_pCar->arrive(wp->getPosition());
+		break;
+	}
+	case key_d:
+	{
+		m_pCar->decisionMaking(m_pickups[0], m_pickups[1], m_pickups[2]);
 		break;
 	}
 	case key_f:
@@ -266,11 +272,11 @@ void AIManager::keyDown(WPARAM param)
 		{
 			if (p->getType() != pickuptype::Passenger)
 				return;
-				Waypoint* wp = m_waypointManager.getNearestWaypoint(p->getPosition());
-				if (wp == nullptr)
-					break;
-				m_pCar->pathfind(wp);
+			Waypoint* wp = m_waypointManager.getNearestWaypoint(p->getPosition());
+			if (wp == nullptr)
 				break;
+			m_pCar->pathfind(wp);
+			break;
 		}
 		break;
 	}
@@ -371,36 +377,49 @@ bool AIManager::checkForCollisions()
 	XMStoreFloat3(&boundingSphereCar.Center, carPos);
 	boundingSphereCar.Radius = scale.x;
 
-	// do the same for a pickup item
-	// a pickup - !! NOTE it is only referring the first one in the list !!
-	// to get the passenger, fuel or speedboost specifically you will need to iterate the pickups and test their type (getType()) - see the pickup class
-	XMVECTOR puPos;
-	XMVECTOR puScale;
-	XMMatrixDecompose(
-		&puScale,
-		&dummy,
-		&puPos,
-		XMLoadFloat4x4(m_pickups[0]->getTransform())
-	);
-
-	// bounding sphere for pickup item
-	XMStoreFloat3(&scale, puScale);
-	BoundingSphere boundingSpherePU;
-	XMStoreFloat3(&boundingSpherePU.Center, puPos);
-	boundingSpherePU.Radius = scale.x;
-
-	// THIS IS generally where you enter code to test each type of pickup
-	// does the car bounding sphere collide with the pickup bounding sphere?
-	if (boundingSphereCar.Intersects(boundingSpherePU))
+	for (int i = 0; i < m_pickups.size(); i++)
 	{
-		OutputDebugStringA("Pickup collision!\n");
-		m_pickups[0]->hasCollided();
-		setRandomPickupPosition(m_pickups[0]);
+		// do the same for a pickup item
+		// a pickup - !! NOTE it is only referring the first one in the list !!
+		// to get the passenger, fuel or speedboost specifically you will need to iterate the pickups and test their type (getType()) - see the pickup class
+		XMVECTOR puPos;
+		XMVECTOR puScale;
+		XMMatrixDecompose(
+			&puScale,
+			&dummy,
+			&puPos,
+			XMLoadFloat4x4(m_pickups[i]->getTransform())
+		);
 
-		// you will need to test the type of the pickup to decide on the behaviour
-		// m_pCar->dosomething(); ...
+		// bounding sphere for pickup item
+		XMStoreFloat3(&scale, puScale);
+		BoundingSphere boundingSpherePU;
+		XMStoreFloat3(&boundingSpherePU.Center, puPos);
+		boundingSpherePU.Radius = scale.x;
 
-		return true;
+		// THIS IS generally where you enter code to test each type of pickup
+		// does the car bounding sphere collide with the pickup bounding sphere?
+		if (boundingSphereCar.Intersects(boundingSpherePU))
+		{
+			OutputDebugStringA("Pickup collision!\n");
+			m_pickups[i]->hasCollided();
+			setRandomPickupPosition(m_pickups[i]);
+
+			switch (m_pickups[i]->getType())
+			{
+			case pickuptype::Passenger:
+				m_pCar->PickupPassenger();
+				break;
+			case pickuptype::Fuel:
+				m_pCar->PickupFuel();
+				break;
+			case pickuptype::SpeedBoost:
+				m_pCar->PickupSpeedBoost();
+				break;
+			}
+
+			return true;
+		}
 	}
 
 	return false;

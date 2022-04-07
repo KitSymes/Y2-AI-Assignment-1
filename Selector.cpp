@@ -1,9 +1,13 @@
 #include "Selector.h"
 
-NodeState Selector::Evauluate()
+Selector::Selector(std::vector<Node*> children) : Node(children)
 {
-	for (Node* node : children)
-		switch (node->Evauluate())
+}
+
+NodeState Selector::Evauluate(float dt)
+{
+	for (Node* node : _children)
+		switch (node->Evauluate(dt))
 		{
 		case NodeState::RUNNING:
 			_state = NodeState::RUNNING;

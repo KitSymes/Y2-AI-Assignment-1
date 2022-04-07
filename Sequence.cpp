@@ -1,15 +1,17 @@
 #include "Sequence.h"
 
-NodeState Sequence::Evauluate()
+Sequence::Sequence(std::vector<Node*> children) : Node(children)
 {
-	bool isChildRunning = false;
+}
 
-	for (Node* node : children)
-		switch (node->Evauluate())
+NodeState Sequence::Evauluate(float dt)
+{
+	for (Node* node : _children)
+		switch (node->Evauluate(dt))
 		{
 		case NodeState::RUNNING:
-			isChildRunning = true;
-			continue;
+			_state = NodeState::RUNNING;
+			return _state;
 		case NodeState::FAILURE:
 			_state = NodeState::FAILURE;
 			return _state;
@@ -18,5 +20,6 @@ NodeState Sequence::Evauluate()
 			continue;
 		}
 
-	_state = isChildRunning ? NodeState::RUNNING : NodeState::SUCCESS;
+	_state = NodeState::SUCCESS;
+	return _state;
 }

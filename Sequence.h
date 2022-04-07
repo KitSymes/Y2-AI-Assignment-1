@@ -8,6 +8,8 @@ class Sequence :
     public Node
 {
 public:
-    NodeState Evauluate() override;
+    Sequence(std::vector<Node*> children);
+
+    NodeState Evauluate(float dt) override;
 };
 #endif

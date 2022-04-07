@@ -4,6 +4,9 @@
 
 #include <iostream>
 #include <vector>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 enum class NodeState
 {
@@ -16,14 +19,15 @@ class Node
 {
 protected:
 	Node* _parent;
-	std::vector<Node*> children;
+	std::vector<Node*> _children;
 	NodeState _state;
 public:
+	Node(std::vector<Node*> children);
 	Node();
 	~Node();
 
 	void AddChild(Node* node);
 
-	virtual NodeState Evauluate() { return NodeState::FAILURE; };
+	virtual NodeState Evauluate(float dt) { return NodeState::FAILURE; };
 };
 #endif

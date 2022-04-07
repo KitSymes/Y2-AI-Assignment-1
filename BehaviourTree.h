@@ -15,10 +15,26 @@ private:
 	DrawableGameObject* _person;
 	DrawableGameObject* _fuel;
 	DrawableGameObject* _speedboost;
+
+	Vector2D _targetPosition;
+
+	bool _debug = false;
 public:
-	BehaviourTree(Node* root, Vehicle* self, DrawableGameObject* person, DrawableGameObject* fuel, DrawableGameObject* speedboost);
+	bool passengerCollected = false;
+	bool fuelCollected = false;
+	bool speedboostCollected = false;
+
+	BehaviourTree(Vehicle* self, DrawableGameObject* person, DrawableGameObject* fuel, DrawableGameObject* speedboost);
 	~BehaviourTree();
 
-	void Update();
+	void Update(float deltaTime);
+
+	Vehicle* GetVehicle() { return _self; }
+	DrawableGameObject* GetPassenger() { return _person; }
+	DrawableGameObject* GetFuel() { return _fuel; }
+	DrawableGameObject* GetSpeedboost() { return _speedboost; }
+	Vector2D GetTargetPosition() { return _targetPosition; };
+
+	void SetTargetPosition(Vector2D pos);// {  }
 };
 #endif

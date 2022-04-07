@@ -1,8 +1,18 @@
 #include "Vehicle.h"
 #include "Waypoint.h"
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #define NORMAL_MAX_SPEED 200
 #define TEMP_MAX_SPEED 300
+
+Vehicle::~Vehicle()
+{
+	if (_tree)
+		delete _tree;
+	_tree = nullptr;
+}
 
 HRESULT	Vehicle::initMesh(ID3D11Device* pd3dDevice, carColour colour)
 {
@@ -93,6 +103,10 @@ void Vehicle::update(const float deltaTime)
 			obstacleAvoidance(wp->getPosition(), m_target);
 		}
 		break;
+	case SteeringBehaviour::DECISION_MAKING:
+		_tree->Update(deltaTime);
+		m_positionTo = _tree->GetTargetPosition();
+		break;
 	default:
 		break;
 	}
@@ -144,7 +158,10 @@ void Vehicle::update(const float deltaTime)
 
 				// Speed boost has now ran out
 				if (m_speedboostDistance <= 0.0f)
+				{
 					setCurrentSpeed(0.5f);
+					m_speedboostDistance = 0.0f;
+				}
 
 			}
 			m_fuelDistance -= distance;
@@ -302,7 +319,41 @@ void Vehicle::pathfind(Waypoint* target)
 
 void Vehicle::decisionMaking(DrawableGameObject* passenger, DrawableGameObject* fuel, DrawableGameObject* speedboost)
 {
+	if (m_state == SteeringBehaviour::DECISION_MAKING)
+		return;
+
+	m_state = SteeringBehaviour::DECISION_MAKING;
 	setCurrentSpeed(0.5f);
+	if (_tree == nullptr)
+		_tree = new BehaviourTree(this, passenger, fuel, speedboost);
+	m_speedboostDistance = 0.0f;
+	m_fuelDistance = FUELMAX;
+}
+
+void Vehicle::PickupPassenger()
+{
+	if (_tree == nullptr)
+		return;
+	_tree->passengerCollected = true;
+}
+
+void Vehicle::PickupFuel()
+{
+	if (_tree == nullptr)
+		return;
+	_tree->fuelCollected = true;
+	m_fuelDistance = FUELMAX;
+	if (m_currentSpeed < m_maxSpeed / 2.0f)
+		setCurrentSpeed(0.5f);
+}
+
+void Vehicle::PickupSpeedBoost()
+{
+	if (_tree == nullptr)
+		return;
+	_tree->speedboostCollected = true;
+	m_speedboostDistance = SPEEDBOOSTMAX;
+	setCurrentSpeed(1.0f);
 }
 
 // set the current position

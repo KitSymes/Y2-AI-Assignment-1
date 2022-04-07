@@ -29,8 +29,27 @@
     <ClCompile Include="BehaviourTree.cpp">
       <Filter>Behaviour Tree</Filter>
     </ClCompile>
-    <ClCompile Include="GoToFuelTask.cpp" />
-    <ClCompile Include="Sequence.cpp" />
+    <ClCompile Include="Sequence.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="GoToFuelTask.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="GoToSpeedBoostTask.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="GoToPassengerTask.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="IsDistanceToSpeedBoostToPassengerToFuelWorthIt.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="IsDistanceToPassengerToFuelWorthIt.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
+    <ClCompile Include="IsDistanceToSpeedBoostToFuelWorthIt.cpp">
+      <Filter>Behaviour Tree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AIManager.h" />
@@ -73,8 +92,27 @@
     <ClInclude Include="BehaviourTree.h">
       <Filter>Behaviour Tree</Filter>
     </ClInclude>
-    <ClInclude Include="GoToFuelTask.h" />
-    <ClInclude Include="Sequence.h" />
+    <ClInclude Include="Sequence.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="GoToFuelTask.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="GoToSpeedBoostTask.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="GoToPassengerTask.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="IsDistanceToSpeedBoostToPassengerToFuelWorthIt.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="IsDistanceToPassengerToFuelWorthIt.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
+    <ClInclude Include="IsDistanceToSpeedBoostToFuelWorthIt.h">
+      <Filter>Behaviour Tree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\blue.dds">

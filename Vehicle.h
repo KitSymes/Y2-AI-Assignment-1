@@ -1,10 +1,15 @@
 #pragma once
+#ifndef _VEHICLE_H
+#define _VEHICLE_H
+#define SPEEDBOOSTMAX 1500.0f
+#define FUELMAX 1000.0f
 
 #include <stack>
 #include "DrawableGameObject.h"
 #include "WaypointManager.h"
 #include "Vector2D.h"
 #include "Collidable.h"
+#include "BehaviourTree.h"
 
 enum class carColour
 {
@@ -20,8 +25,13 @@ enum class SteeringBehaviour
 class Vehicle : public DrawableGameObject, public Collidable
 {
 public:
+	~Vehicle();
+
 	virtual HRESULT initMesh(ID3D11Device* pd3dDevice, carColour colour);
 	virtual void update(const float deltaTime);
+
+	float GetSpeedBoostDistance() { return m_speedboostDistance; }
+	float GetFuelDistance() { return m_fuelDistance; }
 
 	void setMaxSpeed(const float maxSpeed) { m_maxSpeed = maxSpeed; }
 	void setCurrentSpeed(const float speed); // a ratio: a value between 0 and 1 (1 being max speed)
@@ -41,6 +51,10 @@ public:
 	void pathfind(Waypoint* target);
 	void decisionMaking(DrawableGameObject* passenger, DrawableGameObject* fuel, DrawableGameObject* speedboost);
 
+	void PickupPassenger();
+	void PickupFuel();
+	void PickupSpeedBoost();
+
 	SteeringBehaviour getState() { return m_state; };
 
 	Waypoint* m_debugTargetWaypoint;
@@ -49,8 +63,8 @@ protected:
 	float m_currentSpeed;
 	float m_wanderTimeMax = 1.0f;
 	float m_wanderTime;
-	float m_fuelDistance = 2000.0f;
-	float m_speedboostDistance = 0.0f;
+	float m_fleeRange = 200.0f;
+	float m_detectionDistance = 200.0f;
 
 	Vehicle* m_target;
 	
@@ -63,11 +77,13 @@ protected:
 	SteeringBehaviour m_state;
 	std::stack<Waypoint*> m_pathfindingStack;
 
-	float m_fleeRange = 200.0f;
-	float m_detectionDistance = 200.0f;
+	BehaviourTree* _tree = nullptr;
+	float m_fuelDistance = FUELMAX;
+	float m_speedboostDistance = 0.0f;
 };
 
 inline XMFLOAT3 ToXMFLOAT3(Vector2D vector)
 {
 	return XMFLOAT3(vector.x, vector.y, 0.0f);
 }
+#endif

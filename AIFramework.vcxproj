@@ -367,6 +367,11 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DrawableGameObject.cpp" />
     <ClCompile Include="GoToFuelTask.cpp" />
+    <ClCompile Include="GoToPassengerTask.cpp" />
+    <ClCompile Include="GoToSpeedBoostTask.cpp" />
+    <ClCompile Include="IsDistanceToPassengerToFuelWorthIt.cpp" />
+    <ClCompile Include="IsDistanceToSpeedBoostToFuelWorthIt.cpp" />
+    <ClCompile Include="IsDistanceToSpeedBoostToPassengerToFuelWorthIt.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -388,6 +393,11 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DrawableGameObject.h" />
     <ClInclude Include="GoToFuelTask.h" />
+    <ClInclude Include="GoToPassengerTask.h" />
+    <ClInclude Include="GoToSpeedBoostTask.h" />
+    <ClInclude Include="IsDistanceToPassengerToFuelWorthIt.h" />
+    <ClInclude Include="IsDistanceToSpeedBoostToFuelWorthIt.h" />
+    <ClInclude Include="IsDistanceToSpeedBoostToPassengerToFuelWorthIt.h" />
     <ClInclude Include="main.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClInclude>

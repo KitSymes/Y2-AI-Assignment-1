@@ -1,20 +1,27 @@
 #include "Node.h"
 
-Node::Node()
+Node::Node(std::vector<Node*> children)
 {
 	_parent = nullptr;
 	_state = NodeState::FAILURE;
+	for (int i = 0; i < children.size(); i++)
+		AddChild(children[i]);
+}
+
+Node::Node()
+{
 }
 
 Node::~Node()
 {
-	for (Node* node : children)
+	for (Node* node : _children)
 		delete node;
-	children.clear();
+	_children.clear();
+	_parent = nullptr;
 }
 
 void Node::AddChild(Node* node)
 {
 	node->_parent = this;
-	children.push_back(node);
+	_children.push_back(node);
 }

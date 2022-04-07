@@ -8,6 +8,8 @@ class Selector :
     public Node
 {
 public:
-    NodeState Evauluate() override;
+    Selector(std::vector<Node*> children);
+
+    NodeState Evauluate(float dt) override;
 };
 #endif

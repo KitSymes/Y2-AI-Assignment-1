@@ -1,17 +1,17 @@
 #pragma once
-#ifndef _GOTOFUELTASK_H
-#define _GOTOFUELTASK_H
+#ifndef _GOTOPASSENGERTASK_H
+#define _GOTOPASSENGERTASK_H
 
 #include "Node.h"
 #include "BehaviourTree.h"
 
-class GoToFuelTask :
+class GoToPassengerTask :
 	public Node
 {
 private:
 	BehaviourTree* _tree;
 public:
-	GoToFuelTask(BehaviourTree* tree);
+	GoToPassengerTask(BehaviourTree* tree);
 
 	NodeState Evauluate(float dt) override;
 };
